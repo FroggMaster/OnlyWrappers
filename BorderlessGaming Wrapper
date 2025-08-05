@@ -1,0 +1,41 @@
+@echo off & CHCP 65001>nul
+
+title BorderlessGaming Wrapper for %GameEXE%
+
+:: Configuration Settings
+:: The install path for BorderlessGaming
+set "BLGInstallPath=C:\Program Files (x86)\Borderless Gaming\10.1.2 (Premium)\steamapps\common\Borderless Gaming"
+:: Your games executable name
+set "GameEXE=deadrising3.exe"
+:: Minimize mode, controls how the CMD window is minimzed while monitoring for the game. 
+:: Valid options: 1 or 2
+set "MinimizeModeChoice=2"
+
+:: Don't change anything below here
+cd /D "%~dp0"
+
+:: Check for BorderlessGaming and the Game executable, if neither are found open the script in notepad.
+for %%H in ("%BLGInstallPath%\BorderlessGaming.exe" "%GameEXE%") do (if not exist "%%H" (start Notepad.exe "%~f0" & exit))
+
+    set __COMPAT_LAYER=RunAsInvoker
+    call :MinimizeMode%MinimizeModeChoice%
+    start "" "%BLGInstallPath%\BorderlessGaming.exe" --silent --minimize
+    start "" "%GameEXE%"
+    (PowerShell.exe -NoProfile -Command "While ($True) {If (Get-Process -Name ([System.IO.Path]::GetFileNameWithoutExtension($Env:GameEXE))) {Break} else {Start-Sleep -Seconds 3}}; Wait-Process -Name ([System.IO.Path]::GetFileNameWithoutExtension($Env:GameEXE))")>nul 2>&1
+    taskkill.exe /IM BorderlessGaming.exe /F
+    exit
+
+    :MinimizeMode1
+
+        if "%HF%"=="?" (goto :EOF)
+        set "HF=?"
+        start /min cmd.exe /C call "%~f0"
+
+    Exit
+
+    :MinimizeMode2
+
+        timeout.exe /T 2 /NoBreak>Nul
+        start /B "" PowerShell.exe -NoProfile -WindowStyle Minimized -Command "exit"
+
+    goto :EOF

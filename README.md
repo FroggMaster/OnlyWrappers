@@ -1,4 +1,4 @@
-# OnlyLaunchers
+# OnlyWrappers
 A collection of Windows batch scripts designed to wrap game launchers, automating tasks before launch or during cleanup after the game has closed.
 
 ## Scripts
